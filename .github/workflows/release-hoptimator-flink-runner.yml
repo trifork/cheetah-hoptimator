@@ -5,6 +5,9 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  release:
+    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -51,6 +54,10 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha
+          # generate Docker labels based on the following events/attributes
+          labels: |
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
+            org.opencontainers.image.description=Hoptimator Flink Runner
 
       - name: Build and push hoptimator image
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
