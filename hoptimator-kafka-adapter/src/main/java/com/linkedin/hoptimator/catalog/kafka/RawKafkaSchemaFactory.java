@@ -5,6 +5,9 @@ import org.apache.calcite.schema.SchemaFactory;
 import org.apache.calcite.schema.SchemaPlus;
 
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler;
+//import org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler;
+//import org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler;
 
 import com.linkedin.hoptimator.catalog.ConfigProvider;
 import com.linkedin.hoptimator.catalog.DataType;
@@ -19,7 +22,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RawKafkaSchemaFactory implements SchemaFactory {
+
+  private static final Logger fakelog = LoggerFactory.getLogger(OAuthBearerLoginCallbackHandler.class);
 
   @Override
   @SuppressWarnings("unchecked")
@@ -27,15 +35,15 @@ public class RawKafkaSchemaFactory implements SchemaFactory {
     String principal = (String) operand.getOrDefault("principal", "User:ANONYMOUS");
     Map<String, Object> clientConfig = (Map<String, Object>) operand.get("clientConfig");
     DataType.Struct rowType = DataType.struct()
-      .with("PAYLOAD", DataType.VARCHAR_NULL)
-      .with("KEY", DataType.VARCHAR_NULL);
+        .with("PAYLOAD", DataType.VARCHAR_NULL)
+        .with("KEY", DataType.VARCHAR_NULL);
     ConfigProvider connectorConfigProvider = ConfigProvider.from(clientConfig)
-      .withPrefix("properties.")
-      .with("connector", "upsert-kafka")
-      .with("key.format", "csv")
-      .with("value.format", "csv")
-      .with("value.fields-include", "EXCEPT_KEY")
-      .with("topic", x -> x);
+        .withPrefix("properties.")
+        .with("connector", "upsert-kafka")
+        .with("key.format", "csv")
+        .with("value.format", "csv")
+        .with("value.fields-include", "EXCEPT_KEY")
+        .with("topic", x -> x);
     TableLister tableLister = () -> {
       AdminClient client = AdminClient.create(clientConfig);
       Collection<String> topics = client.listTopics().names().get();
@@ -44,14 +52,14 @@ public class RawKafkaSchemaFactory implements SchemaFactory {
     };
     ConfigProvider topicConfigProvider = ConfigProvider.from(clientConfig);
     TableResolver resolver = x -> rowType.rel();
-    
+
     ResourceProvider resources = ResourceProvider.empty()
-      .with(x -> new KafkaTopic(x, topicConfigProvider.config(x)))
-      .readWith(x -> new KafkaTopicAcl(x, principal, "Read"))
-      .writeWith(x -> new KafkaTopicAcl(x, principal, "Write"));
-    
+        .with(x -> new KafkaTopic(x, topicConfigProvider.config(x)))
+        .readWith(x -> new KafkaTopicAcl(x, principal, "Read"))
+        .writeWith(x -> new KafkaTopicAcl(x, principal, "Write"));
+
     Database database = new Database(name, tableLister, resolver, connectorConfigProvider,
-      resources);
+        resources);
     return new DatabaseSchema(database);
   }
 }
