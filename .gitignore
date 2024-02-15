@@ -3,6 +3,7 @@
 */build/
 */*.iml
 ./models/external/
+bin/
 
 # Compiled class file
 *.class
