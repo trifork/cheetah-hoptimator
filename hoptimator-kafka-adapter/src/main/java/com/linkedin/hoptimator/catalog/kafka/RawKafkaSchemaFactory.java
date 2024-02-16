@@ -5,9 +5,9 @@ import org.apache.calcite.schema.SchemaFactory;
 import org.apache.calcite.schema.SchemaPlus;
 
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.calcite.adapter.kafka.KafkaTableFactory;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler;
-//import org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler;
-//import org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler;
 
 import com.linkedin.hoptimator.catalog.ConfigProvider;
 import com.linkedin.hoptimator.catalog.DataType;
