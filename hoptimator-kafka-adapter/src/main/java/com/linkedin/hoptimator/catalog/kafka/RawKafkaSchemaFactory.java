@@ -17,10 +17,7 @@ import com.linkedin.hoptimator.catalog.ResourceProvider;
 import com.linkedin.hoptimator.catalog.TableLister;
 import com.linkedin.hoptimator.catalog.TableResolver;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class RawKafkaSchemaFactory implements SchemaFactory {
 
   private static final Logger fakelog = LoggerFactory.getLogger(OAuthBearerLoginCallbackHandler.class);
+  private final Logger logger = LoggerFactory.getLogger(RawKafkaSchemaFactory.class);
 
   @Override
   @SuppressWarnings("unchecked")
@@ -37,6 +35,18 @@ public class RawKafkaSchemaFactory implements SchemaFactory {
     DataType.Struct rowType = DataType.struct()
         .with("PAYLOAD", DataType.VARCHAR_NULL)
         .with("KEY", DataType.VARCHAR_NULL);
+
+    // cheetah secrets handling
+    if (System.getenv("KAFKA_SASL_JAAS_CONFIG") != null) {
+      logger.info("Using KAFKA_SASL_JAAS_CONFIG to replace " + clientConfig.get("sasl.jaas.config") + " with "
+          + System.getenv("KAFKA_SASL_JAAS_CONFIG"));
+      clientConfig.put("sasl.jaas.config", System.getenv("KAFKA_SASL_JAAS_CONFIG"));
+    }
+    if (System.getenv("KAFKA_SASL_TRUSTSTORE_PASSWORD") != null) {
+      logger.info("Using KAFKA_SASL_TRUSTSTORE_PASSWORD");
+      clientConfig.put("ssl.truststore.password", System.getenv("KAFKA_SASL_TRUSTSTORE_PASSWORD"));
+    }
+
     ConfigProvider connectorConfigProvider = ConfigProvider.from(clientConfig)
         .withPrefix("properties.")
         .with("connector", "upsert-kafka")
