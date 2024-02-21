@@ -14,6 +14,10 @@ dependencies {
   implementation libs.flinkCsv
   implementation libs.flinkConnectorKafka
   implementation libs.slf4jSimple
+
+  implementation libs.flinkConnectorKafka2
+
+  implementation libs.kafkaClients
 }
 
 application {
