@@ -12,6 +12,7 @@ include 'hoptimator-mysql-adapter'
 include 'hoptimator-operator'
 include 'hoptimator-operator-integration'
 include 'hoptimator-planner'
+// hoptimator-opensearch-adapter
 
 dependencyResolutionManagement {
   repositories {
