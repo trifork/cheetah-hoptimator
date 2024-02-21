@@ -1,0 +1,64 @@
+---
+version: '1.0'
+defaultSchema: KAFKA
+schemas:
+- name: KAFKA
+  tables:
+  - name: JobNameInputTopic
+    type: custom
+    factory: org.apache.calcite.adapter.kafka.KafkaTableFactory
+    operand:
+      bootstrap.servers: kafka:19092
+      topic.name: JobNameInputTopic
+      consumer.params:
+        group.id: hoptimator-table-test-2
+        auto.offset.reset: earliest
+        key.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+        value.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+        sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler
+        sasl.oauthbearer.token.endpoint.url: http://keycloak:1852/realms/local-development/protocol/openid-connect/token
+        sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId="default-access" clientSecret="default-access-secret" scope="kafka";'
+        security.protocol: SASL_PLAINTEXT
+        sasl.mechanism: OAUTHBEARER
+  - name: JobNameInputTopicString
+    type: custom
+    factory: org.apache.calcite.adapter.kafka.KafkaTableFactory
+    operand:
+      bootstrap.servers: kafka:19092
+      topic.name: JobNameInputTopic
+      row.converter: com.linkedin.hoptimator.catalog.kafka.KafkaRowConverterString
+      consumer.params:
+        group.id: hoptimator-tablestring-test
+        auto.offset.reset: earliest
+        key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler
+        sasl.oauthbearer.token.endpoint.url: http://keycloak:1852/realms/local-development/protocol/openid-connect/token
+        sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId="default-access" clientSecret="default-access-secret" scope="kafka";'
+        security.protocol: SASL_PLAINTEXT
+        sasl.mechanism: OAUTHBEARER
+  - name: IJobNameInputTopic
+    type: custom
+    factory: org.apache.calcite.adapter.kafka.KafkaTableFactory
+    operand:
+      bootstrap.servers: kafka:19093
+      topic.name: JobNameInputTopic
+      consumer.params:
+        group.id: hoptimator-table-insecure-test
+        auto.offset.reset: earliest
+        key.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+        value.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+        security.protocol: PLAINTEXT
+  - name: IJobNameInputTopicString
+    type: custom
+    factory: org.apache.calcite.adapter.kafka.KafkaTableFactory
+    operand:
+      bootstrap.servers: kafka:19093
+      topic.name: JobNameInputTopic
+      row.converter: com.linkedin.hoptimator.catalog.kafka.KafkaRowConverterString
+      consumer.params:
+        group.id: hoptimator-tablestring-insecure-test
+        auto.offset.reset: earliest
+        key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        security.protocol: PLAINTEXT
