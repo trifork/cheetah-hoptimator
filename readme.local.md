@@ -4,7 +4,7 @@ Run hoptimor without kafka topic crds and use our own kafka etc
 
 ## Build
 ```sh
-docker run --rm -v -v ${PWD}/.grade/cache/:/home/gradle/.gradle ${PWD}:/home/project -w /home/project openjdk:11 ./gradlew build
+docker run --rm -v ${PWD}:/home/project -v ${PWD}/.grade/cache/:/home/gradle/.gradle -w /home/project openjdk:11 ./gradlew build
 docker build . -t hoptimator
 docker build hoptimator-flink-runner -t hoptimator-flink-runner
 ```
@@ -22,4 +22,6 @@ kubectl apply -f ./deploy
 inject jaas as env
 tablefactory vs svhemafactory
 ssl.truststore.password as env
-<https://github.com/apache/calcite/blob/main/elasticsearch/src/main/java/org/apache/calcite/adapter/elasticsearch/ElasticsearchSchemaFactory.java> to openswarch with security
+<https://github.com/apache/calcite/blob/main/elasticsearch/src/main/java/org/apache/calcite/adapter/elasticsearch/ElasticsearchSchemaFactory.java> to openswarch with security and see <https://calcite.apache.org/docs/elasticsearch_adapter.html>
+<https://medium.com/@masayuki/apache-calcite-code-reading-part-2-594e8ca17acf> look at avro schema
+<https://calcite.apache.org/docs/kafka_adapter.html>

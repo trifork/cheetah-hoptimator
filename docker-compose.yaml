@@ -1,0 +1,70 @@
+services:
+  # docker exec -it hoptimator-cli bash
+  hoptimator-cli:
+    container_name: hoptimator-cli
+    image: cheetah-hoptimator-cli:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      KAFKA_SASL_JAAS_CONFIG: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId="default-access" clientSecret="default-access-secret" scope="kafka";
+      #KAFKA_SASL_JAAS_CONFIG: org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId="default-access" clientSecret="default-access-secret" scope="kafka";
+      FLINK_PROPERTIES: |
+        taskmanager.numberOfTaskSlots: 1
+    command: ["bash", "-c", "sleep", "infinity"]
+    tty: true
+    volumes:
+      - ./etc:/etc/config
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "./hoptimator-cli-integration/bin/hoptimator-cli-integration",
+          "--run=./readiness-probe.sql",
+          "--historyfile=/tmp/history",
+        ]
+      interval: 30m0s
+      timeout: 30s
+      retries: 1
+
+  jobmanager:
+    image: cheetah-hoptimator-flink-runner:local
+    build:
+      context: hoptimator-flink-runner/
+      dockerfile: hoptimator-flink-runner/Dockerfile
+    ports:
+      - "8081:8081"
+    command: |
+      standalone-job 
+      --job-classname com.linkedin.hoptimator.flink.runner.FlinkRunner
+      !insert into RAWKAFKA."sql-job-sink" SELECT "value", "deviceId" AS KEY FROM RAWKAFKA."DemoInputEvents"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 1
+    profiles:
+      - flink
+
+  taskmanager:
+    image: cheetah-hoptimator-flink-runner:local
+    build:
+      context: .
+      dockerfile: hoptimator-flink-runner/Dockerfile
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 1
+        parallelism.default: 1
+    profiles:
+      - flink
+
+networks:
+  default:
+    name: "cheetah-infrastructure"
+    external: true

@@ -1,0 +1,10 @@
+# meta
+.git/
+.devcontainer/
+.github/
+.vscode/
+
+# binaries
+*/build/
+bin/
+build/
