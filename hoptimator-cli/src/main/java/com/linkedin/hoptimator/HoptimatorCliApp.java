@@ -24,6 +24,9 @@ import java.util.Scanner;
 import java.util.Properties;
 import java.io.IOException;
 
+//import org.apache.flink.kafka.shaded.org.apache.kafka.common.security.auth.AuthenticateCallbackHandler;
+import io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler;
+
 public class HoptimatorCliApp {
   private final Logger logger = LoggerFactory.getLogger(HoptimatorCliApp.class);
   private final Properties properties;
@@ -61,23 +64,23 @@ public class HoptimatorCliApp {
   }
 
   private static InsertInto parseInsertInto(String s) {
-      String sql = s.trim();
-      if (!startsWith(sql, "insert into ")) {
-        throw new IllegalArgumentException("Expected insert into ... ");
-      }
-      String[] parts = sql.substring(12).split("(?i)SELECT"); // case insensitive
-      if (parts.length != 2) {
-        throw new IllegalArgumentException("Expected ... SELECT ...");
-      }
-      String[] parts2 = parts[0].split("\\.");
-      if (parts2.length != 2) {
-        throw new IllegalArgumentException("Expected ... DATABASE.TABLE ...");
-      }
-      // TODO unquote correctly
-      String database = parts2[0].replaceAll("[\\\"']", "").trim();
-      String table = parts2[1].replaceAll("[\\\"']", "").trim();
-      String query = "SELECT " + parts[1];
-      return new InsertInto(database, table, query);
+    String sql = s.trim();
+    if (!startsWith(sql, "insert into ")) {
+      throw new IllegalArgumentException("Expected insert into ... ");
+    }
+    String[] parts = sql.substring(12).split("(?i)SELECT"); // case insensitive
+    if (parts.length != 2) {
+      throw new IllegalArgumentException("Expected ... SELECT ...");
+    }
+    String[] parts2 = parts[0].split("\\.");
+    if (parts2.length != 2) {
+      throw new IllegalArgumentException("Expected ... DATABASE.TABLE ...");
+    }
+    // TODO unquote correctly
+    String database = parts2[0].replaceAll("[\\\"']", "").trim();
+    String table = parts2[1].replaceAll("[\\\"']", "").trim();
+    String query = "SELECT " + parts[1];
+    return new InsertInto(database, table, query);
   }
 
   private static class InsertInto {
@@ -91,7 +94,7 @@ public class HoptimatorCliApp {
       this.query = query;
     }
   }
- 
+
   private class AvroCommandHandler implements CommandHandler {
 
     @Override
@@ -140,7 +143,7 @@ public class HoptimatorCliApp {
         HoptimatorPlanner planner = HoptimatorPlanner.fromModelFile(connectionUrl, properties);
         RelNode plan = planner.logical(sql);
         String avroSchema = AvroConverter.avro("OutputNamespace", "OutputName", plan.getRowType()).toString(true);
-        sqlline.output(avroSchema); 
+        sqlline.output(avroSchema);
         dispatchCallback.setToSuccess();
       } catch (Exception e) {
         sqlline.error(e.toString());
@@ -209,11 +212,11 @@ public class HoptimatorCliApp {
         PipelineRel plan = planner.pipeline(insertInto.query);
         PipelineRel.Implementor impl = new PipelineRel.Implementor(plan);
         HopTable sink = planner.database(insertInto.database)
-          .makeTable(insertInto.table, impl.rowType());
+            .makeTable(insertInto.table, impl.rowType());
         Pipeline pipeline = impl.pipeline(sink);
         // TODO provide generated avro schema to environment
         Resource.TemplateFactory templateFactory = new Resource.SimpleTemplateFactory(
-          new Resource.SimpleEnvironment(properties).orIgnore());
+            new Resource.SimpleEnvironment(properties).orIgnore());
         pipeline.render(templateFactory).stream().forEach(x -> sqlline.output(x));
         dispatchCallback.setToSuccess();
       } catch (Exception e) {
@@ -287,7 +290,7 @@ public class HoptimatorCliApp {
         PipelineRel.Implementor impl = new PipelineRel.Implementor(plan);
         sqlline.output("SQL:");
         HopTable sink = planner.database(insertInto.database)
-          .makeTable(insertInto.table, impl.rowType());
+            .makeTable(insertInto.table, impl.rowType());
         sqlline.output(impl.insertInto(sink).sql(MysqlSqlDialect.DEFAULT));
         dispatchCallback.setToSuccess();
       } catch (Exception e) {
@@ -351,7 +354,7 @@ public class HoptimatorCliApp {
         sql = sql.substring("check".length() + 1);
       }
 
-      //remove semicolon from query if present
+      // remove semicolon from query if present
       if (sql.length() > 0 && sql.charAt(sql.length() - 1) == ';') {
         sql = sql.substring(0, sql.length() - 1);
       }
@@ -359,14 +362,14 @@ public class HoptimatorCliApp {
       String connectionUrl = sqlline.getConnectionMetadata().getUrl();
       try {
         String[] type = sql.split(" ", 2);
-        if(type.length < 2) {
-          throw new IllegalArgumentException("Invalid usage"); //TODO: expand
+        if (type.length < 2) {
+          throw new IllegalArgumentException("Invalid usage"); // TODO: expand
         }
 
         String value = null;
         String query = null;
 
-        String checkType=type[0];
+        String checkType = type[0];
         switch (checkType) {
           case "not":
             query = type[1].split(" ", 2)[1].trim();
@@ -389,8 +392,8 @@ public class HoptimatorCliApp {
         String pipelineSql = impl.query().sql(MysqlSqlDialect.DEFAULT);
         FlinkIterable iterable = new FlinkIterable(pipelineSql);
         Iterator<String> iter = iterable.<String>field(0, 1).iterator();
-        switch(checkType) {
-          case "not": 
+        switch (checkType) {
+          case "not":
             if (!iter.hasNext()) {
               throw new IllegalArgumentException("Expected >0 rows from query result");
             }
@@ -403,7 +406,7 @@ public class HoptimatorCliApp {
           case "value":
             boolean varFound = false;
             while (iter.hasNext()) {
-              if(String.valueOf(iter.next()).contains(value)) {
+              if (String.valueOf(iter.next()).contains(value)) {
                 varFound = true;
                 break;
               }
@@ -479,9 +482,9 @@ public class HoptimatorCliApp {
         PipelineRel plan = planner.pipeline(insertInto.query);
         PipelineRel.Implementor impl = new PipelineRel.Implementor(plan);
         HopTable sink = planner.database(insertInto.database)
-          .makeTable(insertInto.table, impl.rowType());
+            .makeTable(insertInto.table, impl.rowType());
         String pipelineSql = impl.insertInto(sink).sql(MysqlSqlDialect.DEFAULT)
-          + "\nSELECT 'SUCCESS';";
+            + "\nSELECT 'SUCCESS';";
         FlinkIterable iterable = new FlinkIterable(pipelineSql);
         Iterator<String> iter = iterable.<String>field(0).iterator();
         if (iter.hasNext()) {
@@ -509,7 +512,6 @@ public class HoptimatorCliApp {
       return false;
     }
   }
-
 
   private class IntroCommandHandler implements CommandHandler {
 
@@ -599,7 +601,7 @@ public class HoptimatorCliApp {
         sql = sql.substring("mermaid ".length());
       }
 
-      //remove semicolon from query if present
+      // remove semicolon from query if present
       if (sql.length() > 0 && sql.charAt(sql.length() - 1) == ';') {
         sql = sql.substring(0, sql.length() - 1);
       }
@@ -611,7 +613,7 @@ public class HoptimatorCliApp {
         PipelineRel plan = planner.pipeline(insertInto.query);
         PipelineRel.Implementor impl = new PipelineRel.Implementor(plan);
         HopTable sink = planner.database(insertInto.database)
-          .makeTable(insertInto.table, impl.rowType());
+            .makeTable(insertInto.table, impl.rowType());
         Pipeline pipeline = impl.pipeline(sink);
         sqlline.output(pipeline.mermaid());
         dispatchCallback.setToSuccess();
@@ -680,7 +682,7 @@ public class HoptimatorCliApp {
         cmd = cmd.substring("config".length());
       }
 
-      String []split = cmd.split("[\\s=]+", 2);
+      String[] split = cmd.split("[\\s=]+", 2);
 
       if (split.length != 2) {
         sqlline.output("Currently defined configs:");

@@ -12,6 +12,7 @@ dependencies {
   implementation libs.calciteKafka
 
   implementation libs.kafkaClients
+  implementation libs.kafkaOauthClient
   implementation libs.kubernetesClient
   implementation libs.kubernetesExtendedClient
 

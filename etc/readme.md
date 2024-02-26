@@ -5,7 +5,9 @@
 ```sh
 docker compose up -d --build
 docker exec -it hoptimator-cli ./hoptimator-cli-integration/bin/hoptimator-cli-integration --historyfile=/tmp/history
+docker exec -it hoptimator-cli ./hoptimator-cli-integration/bin/hoptimator-cli-integration --historyfile=/tmp/history --run=/etc/config/testoauth2.sql
 ```
+
 
 ## Verify
 

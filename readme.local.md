@@ -25,3 +25,5 @@ ssl.truststore.password as env
 <https://github.com/apache/calcite/blob/main/elasticsearch/src/main/java/org/apache/calcite/adapter/elasticsearch/ElasticsearchSchemaFactory.java> to openswarch with security and see <https://calcite.apache.org/docs/elasticsearch_adapter.html>
 <https://medium.com/@masayuki/apache-calcite-code-reading-part-2-594e8ca17acf> look at avro schema
 <https://calcite.apache.org/docs/kafka_adapter.html>
+
+https://issues.apache.org/jira/browse/KAFKA-14102

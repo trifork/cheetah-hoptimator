@@ -17,7 +17,7 @@
                             "auto.offset.reset": "earliest",
                             "key.deserializer": "org.apache.kafka.common.serialization.ByteArrayDeserializer",
                             "value.deserializer": "org.apache.kafka.common.serialization.ByteArrayDeserializer",
-                            "sasl.login.callback.handler.class": "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler",
+                            "sasl.login.callback.handler.class": "org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler",
                             "sasl.oauthbearer.token.endpoint.url": "http://keycloak:1852/realms/local-development/protocol/openid-connect/token",
                             "security.protocol": "SASL_PLAINTEXT",
                             "sasl.mechanism": "OAUTHBEARER"
@@ -37,7 +37,7 @@
                             "auto.offset.reset": "earliest",
                             "key.deserializer": "org.apache.kafka.common.serialization.StringDeserializer",
                             "value.deserializer": "org.apache.kafka.common.serialization.StringDeserializer",
-                            "sasl.login.callback.handler.class": "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler",
+                            "sasl.login.callback.handler.class": "org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler",
                             "sasl.oauthbearer.token.endpoint.url": "http://keycloak:1852/realms/local-development/protocol/openid-connect/token",
                             "security.protocol": "SASL_PLAINTEXT",
                             "sasl.mechanism": "OAUTHBEARER"

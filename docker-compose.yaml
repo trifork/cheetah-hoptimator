@@ -7,7 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      KAFKA_SASL_JAAS_CONFIG: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId="default-access" clientSecret="default-access-secret" scope="kafka";
+      #KAFKA_SASL_JAAS_CONFIG: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId="default-access" clientSecret="default-access-secret" scope="kafka";
+      KAFKA_SASL_JAAS_CONFIG: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.client.id="default-access" oauth.client.secret="default-access-secret" oauth.scope="kafka" oauth.token.endpoint.uri="http://keycloak:1852/realms/local-development/protocol/openid-connect/token";
       #KAFKA_SASL_JAAS_CONFIG: org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId="default-access" clientSecret="default-access-secret" scope="kafka";
       FLINK_PROPERTIES: |
         taskmanager.numberOfTaskSlots: 1

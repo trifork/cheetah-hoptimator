@@ -12,7 +12,7 @@ dependencies {
   implementation project(':hoptimator-mysql-adapter')
   implementation project(':hoptimator-flink-adapter')
   implementation libs.flinkCsv
-  implementation libs.flinkConnectorKafka
+  // implementation libs.flinkConnectorKafka
   implementation libs.slf4jSimple
 
   implementation libs.flinkConnectorKafka2

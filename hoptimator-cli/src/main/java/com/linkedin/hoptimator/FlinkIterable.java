@@ -8,7 +8,14 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.util.CloseableIterator;
+import org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler;
+import org.apache.kafka.common.security.oauthbearer.internals.OAuthBearerSaslClientCallbackHandler;
+import org.apache.kafka.common.security.oauthbearer.internals.OAuthBearerSaslClientProvider;
+//import org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler;
 import org.apache.flink.types.Row;
+
+//import org.apache.flink.kafka.shaded.org.apache.kafka.common.security.auth.AuthenticateCallbackHandler;
+import io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +27,7 @@ public class FlinkIterable implements Iterable<Object> {
   private final Logger logger = LoggerFactory.getLogger(FlinkIterable.class);
 
   private static final Logger fakelog = LoggerFactory.getLogger(
-      org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler.class);
+      OAuthBearerLoginCallbackHandler.class);
 
   private final String sql;
   private final long timeoutMillis;
@@ -136,16 +143,17 @@ public class FlinkIterable implements Iterable<Object> {
     // readd ) to the last statement to make it a valid DDL statement
     String[] ddl = Arrays.stream(ddlRaw)
         .map(s -> (s + ")")
-            .replace(
-                "org.apache.kafka.common.security.oauthbearerOAuthBearerLoginCallbackHandler",
-                org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler.class
-                    .getName())
-            .replace(org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule.class.getName(),
-                org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule.class
-                    .getName())
+            // .replace(
+            // org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler.class.getName(),
+            // org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler.class
+            // .getName())
+            // .replace(org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule.class.getName(),
+            // org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule.class
+            // .getName())
             .trim())
         .toArray(String[]::new);
     String query = statements[statements.length - 1];
+    OAuthBearerSaslClientProvider.initialize(); // not part of public API
 
     Map<String, String[]> map = new HashMap<>();
 

@@ -14,12 +14,14 @@ dependencies {
   implementation libs.slf4jApi
   implementation libs.flinkClients
   implementation libs.flinkTableRuntime
-  implementation libs.flinkConnectorKafka
+  // implementation libs.flinkConnectorKafka
+  implementation libs.flinkConnectorKafka2
   implementation libs.flinkTablePlanner
   implementation libs.calciteCore
   implementation libs.calciteAvatica
 
   implementation libs.kafkaClients
+  implementation libs.kafkaOauthClient
   
   testImplementation libs.junit
   testImplementation libs.assertj

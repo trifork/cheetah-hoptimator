@@ -5,9 +5,15 @@ import org.apache.calcite.schema.SchemaFactory;
 import org.apache.calcite.schema.SchemaPlus;
 
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.calcite.adapter.kafka.KafkaTableFactory;
+//import org.apache.calcite.adapter.kafka.KafkaTableFactory;
+//import org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler;
+
+import io.strimzi.kafka.oauth.client.ClientConfig;
+import io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler;
+import io.strimzi.kafka.oauth.common.Config;
+import org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule;
+
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler;
 
 import com.linkedin.hoptimator.catalog.ConfigProvider;
 import com.linkedin.hoptimator.catalog.DataType;
@@ -24,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 public class RawKafkaSchemaFactory implements SchemaFactory {
 
-  private static final Logger fakelog = LoggerFactory.getLogger(OAuthBearerLoginCallbackHandler.class);
+  private static final Logger fakelog = LoggerFactory.getLogger(JaasClientOauthLoginCallbackHandler.class);
   private final Logger logger = LoggerFactory.getLogger(RawKafkaSchemaFactory.class);
 
   @Override
@@ -40,7 +46,22 @@ public class RawKafkaSchemaFactory implements SchemaFactory {
     if (System.getenv("KAFKA_SASL_JAAS_CONFIG") != null) {
       logger.info("Using KAFKA_SASL_JAAS_CONFIG to replace " + clientConfig.get("sasl.jaas.config") + " with "
           + System.getenv("KAFKA_SASL_JAAS_CONFIG"));
-      clientConfig.put("sasl.jaas.config", System.getenv("KAFKA_SASL_JAAS_CONFIG"));
+      clientConfig.put("sasl.jaas.config",
+          System.getenv("KAFKA_SASL_JAAS_CONFIG"));
+
+      // clientConfig.put("properties.sasl.mechanism",
+      // OAuthBearerLoginModule.OAUTHBEARER_MECHANISM);
+      // clientConfig.put("properties.sasl.login.callback.handler.class",
+      // JaasClientOauthLoginCallbackHandler.class.getName());
+      // clientConfig.put("properties.sasl.jaas.config",
+      // OAuthBearerLoginModule.class.getName() + " required "
+      // + Config.OAUTH_CLIENT_ID + "= " + "default-access" + " "
+      // + Config.OAUTH_CLIENT_SECRET + "=\"default-access-secret\" "
+      // + Config.OAUTH_SCOPE + "=\"kafka\" "
+      // + ClientConfig.OAUTH_TOKEN_ENDPOINT_URI
+      // +
+      // "=\"http://keycloak:1852/realms/local-development/protocol/openid-connect/token\";'");
+
     }
     if (System.getenv("KAFKA_SASL_TRUSTSTORE_PASSWORD") != null) {
       logger.info("Using KAFKA_SASL_TRUSTSTORE_PASSWORD");
