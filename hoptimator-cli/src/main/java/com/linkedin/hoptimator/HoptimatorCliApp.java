@@ -24,9 +24,6 @@ import java.util.Scanner;
 import java.util.Properties;
 import java.io.IOException;
 
-//import org.apache.flink.kafka.shaded.org.apache.kafka.common.security.auth.AuthenticateCallbackHandler;
-import io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler;
-
 public class HoptimatorCliApp {
   private final Logger logger = LoggerFactory.getLogger(HoptimatorCliApp.class);
   private final Properties properties;

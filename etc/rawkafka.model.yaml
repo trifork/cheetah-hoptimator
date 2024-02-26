@@ -17,21 +17,38 @@ schemas:
         auto.offset.reset: earliest
         security.protocol: SASL_PLAINTEXT
         sasl.mechanism: OAUTHBEARER
-        #The OAuthBearerLoginCallbackHandler is used on the client side to retrieve a JWT token from the OAuth 2.0 token endpoint.
-        #sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
         sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
-        #sasl.login.callback.handler.class: org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
-        sasl.oauthbearer.token.endpoint.url: http://keycloak:1852/realms/local-development/protocol/openid-connect/token
         #sasl.jaas.config is handled by ENV: KAFKA_SASL_JAAS_CONFIG
-        #sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId="default-access" clientSecret="default-access-secret" scope="kafka";'
         #ssl.truststore.password is handled by ENV: KAFKA_SASL_TRUSTSTORE_PASSWORD
 
-  - name: INSECURERAWKAFKA
-    type: custom
-    factory: com.linkedin.hoptimator.catalog.kafka.RawKafkaSchemaFactory
-    operand:
-      clientConfig:
-        bootstrap.servers: kafka:19093
-        group.id: hoptimator-test
-        auto.offset.reset: earliest
-        security.protocol: PLAINTEXT
+  - name: KAFKA
+    tables:
+      - name: JobNameInputTopic
+        type: custom
+        factory: com.linkedin.hoptimator.catalog.kafka.OAuth2KafkaTableFactory
+        operand:
+          bootstrap.servers: kafka:19092
+          topic.name: JobNameInputTopic
+          consumer.params:
+            group.id: hoptimator-table-test-3
+            auto.offset.reset: earliest
+            key.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+            value.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+            sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
+            security.protocol: SASL_PLAINTEXT
+            sasl.mechanism: OAUTHBEARER
+      - name: JobNameInputTopicString
+        type: custom
+        factory: com.linkedin.hoptimator.catalog.kafka.OAuth2KafkaTableFactory
+        operand:
+          bootstrap.servers: kafka:19092
+          topic.name: JobNameInputTopic
+          row.converter: com.linkedin.hoptimator.catalog.kafka.KafkaRowConverterString
+          consumer.params:
+            group.id: hoptimator-tablestring-test-3
+            auto.offset.reset: earliest
+            key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
+            security.protocol: SASL_PLAINTEXT
+            sasl.mechanism: OAUTHBEARER

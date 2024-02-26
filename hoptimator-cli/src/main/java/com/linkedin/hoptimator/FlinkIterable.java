@@ -1,21 +1,13 @@
 package com.linkedin.hoptimator;
 
-import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.configuration.ConfigConstants;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.util.CloseableIterator;
 import org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler;
-import org.apache.kafka.common.security.oauthbearer.internals.OAuthBearerSaslClientCallbackHandler;
 import org.apache.kafka.common.security.oauthbearer.internals.OAuthBearerSaslClientProvider;
-//import org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler;
 import org.apache.flink.types.Row;
-
-//import org.apache.flink.kafka.shaded.org.apache.kafka.common.security.auth.AuthenticateCallbackHandler;
-import io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,13 +135,6 @@ public class FlinkIterable implements Iterable<Object> {
     // readd ) to the last statement to make it a valid DDL statement
     String[] ddl = Arrays.stream(ddlRaw)
         .map(s -> (s + ")")
-            // .replace(
-            // org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler.class.getName(),
-            // org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler.class
-            // .getName())
-            // .replace(org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule.class.getName(),
-            // org.apache.flink.kafka.shaded.org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule.class
-            // .getName())
             .trim())
         .toArray(String[]::new);
     String query = statements[statements.length - 1];
@@ -164,15 +149,7 @@ public class FlinkIterable implements Iterable<Object> {
   }
 
   private DataStream<Row> datastream() {
-    Configuration conf = new Configuration();
-    // cheetah class loading.
-    // https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/ops/debugging/debugging_classloading/
-    // conf.setString("classloader.resolve-order", "parent-first");
-    conf.setString("classloader.parent-first-patterns.additional",
-        "org.apache.kafka");
-    conf.setString("plugin.classloader.parent-first-patterns.additional",
-        "org.apache.kafka");
-    StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment(conf);
+    StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
     StreamTableEnvironment tEnv = StreamTableEnvironment.create(env);
 
     // Assume that DDL statements come first, and that the last statement is a query
